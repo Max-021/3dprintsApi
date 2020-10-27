@@ -50,13 +50,14 @@ exports.registro = catchAsync(async (req, res, next) => {
 
 exports.iniciarSesion = catchAsync(async (req, res, next) => {
   const { email, contraseña } = req.body;
-
+  console.log(email + " " + contraseña);
   if (!email || !contraseña) {
     return next(new AppError("Por favor ingrese un email y contraseña.", 400));
   }
   const user = await User.findOne({ email }).select("+contraseña");
   console.log(user);
   if (!user || !(await user.correctPassword(contraseña, user.contraseña))) {
+    console.log(user.correctPassword(contraseña, user.contraseña));
     return next(new AppError("Email o contraseña incorrectos.", 401));
   }
   createSendToken(user, 200, res);

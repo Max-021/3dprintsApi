@@ -70,6 +70,23 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+userSchema.pre('save', async function (next) {
+
+  // if (this.isModified('contraseña')) return next();
+
+  this.contraseña = await bcrypt.hash(this.contraseña, 12);
+
+  this.confContraseña = undefined;
+  next();
+});
+
+userSchema.pre('save', function (next) {
+  if (this.isNew) return next();
+
+  this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
 userSchema.pre(/^find/, function (next) {
   this.find({ activo: { $ne: false } });
   next();

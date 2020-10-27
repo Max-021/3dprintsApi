@@ -6,15 +6,15 @@ const productSchema = new mongoose.Schema(
     nombre: {
       type: String,
       required: [true, "Un producto debe tener un nombre."],
-      unique: true,
       trim: true,
     },
     slug: String, // Comentado por si es necesario
     articulo: {
       type: String,
+      unique: [true, "El artículo es único."],
       required: [true, "Un producto debe tener un articulo."],
-      minlength: [8, "Un artículo debe tener 8 caracteres."], //REVISAR SI SE PUEDE PONER UNA LONGITUD FIJA
-      maxlength: [8, "Un artículo debe tener 8 caracteres."],
+      minlength: [4, "Un artículo debe tener 8 caracteres."], //REVISAR SI SE PUEDE PONER UNA LONGITUD FIJA
+      maxlength: [4, "Un artículo debe tener 8 caracteres."],
     },
     precio: {
       type: Number,
@@ -47,7 +47,7 @@ const productSchema = new mongoose.Schema(
 );
 
 productSchema.pre("save", function (next) {
-  this.slug = slugify(this.name, { lower: true });
+  this.slug = slugify(this.nombre, { lower: true });
   next();
 });
 
