@@ -7,8 +7,8 @@ const router = express.Router();
 
 router.route("/").get(productController.catalogo);
 router.route("/").post(
-  // authController.proteger,
-  // authController.restringir("admin"),
+  authController.proteger,
+  authController.restringir("admin"),
   productController.uploadImgProd,
   productController.resizeImg,
   productController.crearProducto
@@ -17,8 +17,8 @@ router
   .route("/:id")
   .get(productController.pedirProducto)
   .patch(
-    // authController.proteger,
-    // authController.restringir("admin"),
+    authController.proteger,
+    authController.restringir("admin"),
     productController.uploadImgProd,
     productController.resizeImg,
     productController.actualizarProd
