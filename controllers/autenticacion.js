@@ -12,37 +12,51 @@ const signToken = (id) => {
   });
 };
 
-const createSendToken = (user, statusCode, res) => {
+const createSendToken = (user, statusCode, req, res) => {
   const token = signToken(user._id);
+
   const cookieOps = {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXP * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
+    secure: req.secure || req.headers['x-forwarded-proto'] === 'https'
   };
+
+  user.contraseña = undefined;
+  user.calle = undefined;
+  user.altura = undefined;
+  user.telefono = undefined;
+  user.apellido = undefined;
+  user.rol = undefined;
+
   if (process.env.NODE_ENV === "production") cookieOps.secure = true;
   res.cookie("jwt", token, cookieOps);
   res.status(statusCode).json({
     status: "success",
     token,
+    data: {
+      user
+    },
   });
 };
 
 exports.registro = catchAsync(async (req, res, next) => {
+
   const newUser = await User.create({
     nombre: req.body.nombre,
     apellido: req.body.apellido,
     email: req.body.email,
     contraseña: req.body.contraseña,
-    confContraseña: req.body.confContraseña,
     calle: req.body.calle,
     altura: req.body.altura,
     telefono: req.body.telefono,
+    passwordChangedAt: Date.now() - 1000,
   });
   const url = `${req.protocol}://${req.get("host")}/me`;
   //enviar email de bienvenida y confirmacion
   // await new Email(newUser, url).sendWelcome();
-  createSendToken(newUser, 201, res);
+  createSendToken(newUser, 201, req, res);
 });
 
 exports.iniciarSesion = catchAsync(async (req, res, next) => {
@@ -57,7 +71,7 @@ exports.iniciarSesion = catchAsync(async (req, res, next) => {
     console.log(user.correctPassword(contraseña, user.contraseña));
     return next(new AppError("Email o contraseña incorrectos.", 401));
   }
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
 
 exports.cerrarSesion = (req, res) => {
@@ -75,7 +89,7 @@ exports.proteger = catchAsync(async (req, res, next) => {
 
   if (
     req.headers.authorization &&
-    req.headers.authorization.startsWith("Bear")
+    req.headers.authorization.startsWith("Bearer")
   ) {
     token = req.headers.authorization.split(" ")[1];
   } else if (req.cookies.jwt) {
@@ -93,16 +107,18 @@ exports.proteger = catchAsync(async (req, res, next) => {
   if (!freshUser) {
     return next(new AppError("El usuario no existe.", 401));
   }
-  if (freshUser.changedPasswordAfter(decoded.iat)) {
-    return next(
-      new AppError(
-        "La contraseña fue cambiada recientemente, intente otra vez.",
-        401
-      )
-    );
-  }
+  //funcion comentada porque no funciona como debe
+  // if (freshUser.changedPasswordAfter(decoded.iat)) {
+  //   return next(
+  //     new AppError(
+  //       "La contraseña fue cambiada recientemente, intente otra vez.",
+  //       401
+  //     )
+  //   );
+  // }
   req.user = freshUser;
   res.locals.user = freshUser;
+  next();
 });
 
 exports.restringir = (...roles) => {
@@ -177,11 +193,8 @@ exports.reingresarContraseña = catchAsync(async (req, res, next) => {
 
 exports.actualizarContr = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.user.id).select("+contraseña");
-  if (!(await user.correctPassword(req.body.confContraseña, user.contraseña))) {
-    return next(new AppError("La contraseña ingresada es incorrecta.", 401));
-  }
+
   user.contraseña = req.body.contraseña;
-  user.confContraseña = req.body.confContraseña;
   await user.save();
   createSendToken(user, 200, res);
 });

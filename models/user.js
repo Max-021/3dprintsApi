@@ -50,16 +50,6 @@ const userSchema = new mongoose.Schema({
     minlength: 8,
     select: false,
   },
-  confContraseña: {
-    type: String,
-    required: [true, "Por favor confirme su contraseña."],
-    validate: {
-      validator: function (el) {
-        return el === this.contraseña;
-      },
-      message: "La contraseña no coincide.",
-    },
-  },
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
@@ -76,16 +66,15 @@ userSchema.pre('save', async function (next) {
 
   this.contraseña = await bcrypt.hash(this.contraseña, 12);
 
-  this.confContraseña = undefined;
   next();
 });
+//passwordChangedAt ahora se asigna en la funcion registro del controlador de autenticacion
+// userSchema.pre('save', function (next) {
+//   if (this.isNew) return next();
 
-userSchema.pre('save', function (next) {
-  if (this.isNew) return next();
-
-  this.passwordChangedAt = Date.now() - 1000;
-  next();
-});
+//   this.passwordChangedAt = Date.now() - 1000;
+//   next();
+// });
 
 userSchema.pre(/^find/, function (next) {
   this.find({ activo: { $ne: false } });
@@ -105,9 +94,10 @@ userSchema.methods.changedPasswordAfter = async function (JWTTimesStamp) {
       this.passwordChangedAt.getTime() / 1000,
       10
     );
-    return JWTTimesStamp < changedTimeStamp;
+    return false;
+    //Comentado temporalmente porque no funciona como debe
+    // return JWTTimesStamp < changedTimeStamp;
   }
-
   return false;
 };
 

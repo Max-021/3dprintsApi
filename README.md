@@ -7,7 +7,11 @@ para poder interactuar con la base de datos. Además tanto los usuarios como los
 
 ## Para iniciar el programa desde la ubicación del archivo: npm start
 
-## [Link para colección en Postman: ](https://www.getpostman.com/collections/a4420fce05d6e82eb648)
+## [Link para colección en Postman](https://www.getpostman.com/collections/a4420fce05d6e82eb648)
+
+### Detalle colección Postman
+
+El link lleva a una colección en el programa Postman que contiene una lista de acciones para las que está preparada esta API, cuenta con parámetros ya cargados para probar su correcto funcionamiento de una manera rápida y eficiente.
 
 ## Usuarios para iniciar sesión
 

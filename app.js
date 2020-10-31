@@ -62,5 +62,4 @@ app.all("*", (req, res, next) => {
 });
 //importante activar
 // app.use(globalErrorHandler);
-
 module.exports = app;
