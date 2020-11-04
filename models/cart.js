@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const User = require('./user');
 
 const cart = new mongoose.Schema({
     user:{
@@ -13,3 +14,7 @@ const cart = new mongoose.Schema({
         type: Object,
     }
 })
+
+const Cart = mongoose.model('Cart', cart);
+
+module.exports = Cart

@@ -9,6 +9,8 @@ para poder interactuar con la base de datos. Además tanto los usuarios como los
 
 ## [Link para colección en Postman](https://www.getpostman.com/collections/a4420fce05d6e82eb648)
 
+Algunas funciones no estan completamente implementadas en la colección porque están pensadas para interactuar con una página web desarrollada en React.
+
 ### Detalle colección Postman
 
 El link lleva a una colección en el programa Postman que contiene una lista de acciones para las que está preparada esta API, cuenta con parámetros ya cargados para probar su correcto funcionamiento de una manera rápida y eficiente.
